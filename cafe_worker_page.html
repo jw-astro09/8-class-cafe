@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>8반 카페 주문 관리</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+}
+h1 {
+    text-align: center;
+}
+ul {
+    max-width: 500px;
+    margin: auto;
+    padding: 0;
+}
+li {
+    list-style: none;
+    background: white;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📋 주문 목록</h1>
+<ul id="list"></ul>
+
+<!-- 1️⃣ Firebase 라이브러리 (반드시 먼저) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<!-- 2️⃣ Firebase 초기화 -->
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAxUz-X3-R5WgO2rNf_52DMpa-7bVkJDbg",
+  authDomain: "class-cafe-3cc46.firebaseapp.com",
+  databaseURL: "https://class-cafe-3cc46-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "class-cafe-3cc46"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+console.log("🔥 직원용 DB 연결 완료");
+</script>
+
+<!-- 3️⃣ 주문 목록 표시 -->
+<script>
+const list = document.getElementById("list");
+
+db.ref("orders").on("child_added", snapshot => {
+    const data = snapshot.val();
+    const li = document.createElement("li");
+    li.textContent = `${data.time} - ${data.menu}`;
+    list.prepend(li);
+});
+</script>
+
+</body>
+</html>
