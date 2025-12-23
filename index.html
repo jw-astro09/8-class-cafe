@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>카페</title>
+<title>8반 카페</title>
 <style>
 body { font-family: sans-serif; text-align: center; padding: 20px; }
 button { padding: 10px 16px; margin: 4px; }
@@ -21,7 +21,7 @@ textarea { width: 260px; height: 60px; }
 </head>
 <body>
 
-<h2>☕ 주문하기</h2>
+<h2>주문하기</h2>
 
 <label for="table"><b>테이블 번호</b></label><br>
 <select id="table" class="table-select">
@@ -34,17 +34,17 @@ textarea { width: 260px; height: 60px; }
 <button onclick="add('청포도 에이드',1000)">청포도 에이드</button>
 <button onclick="add('핫 케이크',2000)">핫 케이크</button>
 
-<h3>🧺 주문목록</h3>
+<h3>주문목록</h3>
 <table id="cart"></table>
 <h3>합계: <span id="total">0</span>원</h3>
 
-<h3>📝 주문 요청 사항</h3>
+<h3>주문 요청 사항</h3>
 <textarea id="orderNote" placeholder="덜 달게, 얼음 적게"></textarea>
 <br><br>
 <button onclick="submitOrder()">주문하기</button>
 
 <div class="section">
-<h2>🔔 마시는 중 요청</h2>
+<h2>요청사항</h2>
 <textarea id="serviceText" placeholder="요청 사항"></textarea>
 <br>
 <button onclick="sendCustomService()">요청 사항</button>
@@ -134,3 +134,4 @@ function sendCustomService() {
 
 </body>
 </html>
+
