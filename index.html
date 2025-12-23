@@ -13,9 +13,9 @@ textarea { width: 260px; height: 60px; }
 
 /* 테이블 선택 박스 크게 */
 .table-select {
-  font-size: 24px;       /* 글자 크기 */
-  padding: 10px 20px;    /* 상하/좌우 여백 */
-  margin-bottom: 20px;   /* 아래 공간 */
+  font-size: 15px;       /* 글자 크기 */
+  padding: 10px 10px;    /* 상하/좌우 여백 */
+  margin-bottom: 15px;   /* 아래 공간 */
 }
 </style>
 </head>
@@ -23,16 +23,18 @@ textarea { width: 260px; height: 60px; }
 
 <h2>주문하기</h2>
 
-<label for="table"><b>테이블 번호</b></label><br>
+<label for="table"><h3><b>테이블 번호</b></h3></label>
 <select id="table" class="table-select">
   <option>1</option><option>2</option><option>3</option>
-  <option>4</option><option>5</option>
+  <option>4</option><option>5</option><option>6</option>
 </select>
 
 <h3>메뉴</h3>
 <button onclick="add('복숭아 아이스티',1000)">복숭아 아이스티(탄산)</button>
 <button onclick="add('청포도 에이드',1000)">청포도 에이드</button>
 <button onclick="add('핫 케이크',2000)">핫 케이크</button>
+<button onclick="add('set A(복숭아+핫 케이크)', 3000)">세트 A(복숭아 아이스티+핫 케이크)</button>
+<button onclick="add('set B (청포도+핫 케이크)', 3000)">세트 B(청포도 에이드+핫 케이크)</button>
 
 <h3>주문목록</h3>
 <table id="cart"></table>
@@ -134,4 +136,4 @@ function sendCustomService() {
 
 </body>
 </html>
-
++
