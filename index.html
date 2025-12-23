@@ -2,54 +2,52 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>카페 요청</title>
+<title>카페</title>
 <style>
-  body {
-    font-family: sans-serif;
-    text-align: center;
-    padding: 20px;
-  }
-  button {
-    margin: 6px;
-    padding: 14px 20px;
-    font-size: 16px;
-    width: 160px;
-  }
-  input, select {
-    font-size: 16px;
-    padding: 8px;
-    width: 260px;
-  }
+body { font-family: sans-serif; text-align: center; padding: 20px; }
+button { padding: 10px 16px; margin: 4px; }
+table { margin: auto; }
+textarea { width: 260px; height: 60px; }
+.section { margin-top: 25px; border-top: 1px solid #ccc; padding-top: 15px; }
 </style>
 </head>
 <body>
 
-<h2>☕ 직원 호출</h2>
+<h2>☕ 주문하기</h2>
 
-<p>테이블 번호</p>
 <select id="table">
   <option>1</option><option>2</option><option>3</option>
-  <option>4</option><option>5</option><option>6</option>
+  <option>4</option><option>5</option>
 </select>
 
-<hr>
+<h3>메뉴</h3>
+<button onclick="add('아메리카노',4000)">아메리카노</button>
+<button onclick="add('라떼',4500)">라떼</button>
+<button onclick="add('케이크',5500)">케이크</button>
 
-<h3>주문</h3>
-<button onclick="sendPreset('청포도 에이드')"> 청포도 에이드</button>
-<button onclick="sendPreset('복숭아 아이스티')"> 복숭아 아이스티(탄산)</button>
-<button onclick="sendPreset('핫케익')">핫케잌</button>
+<h3>🧺 장바구니</h3>
+<table id="cart"></table>
+<h3>합계: <span id="total">0</span>원</h3>
 
-<h3>빠른 요청</h3>
-<button onclick="sendPreset('물')">💧 물</button>
-<button onclick="sendPreset('냅킨')">🧻 냅킨</button>
-<button onclick="sendPreset('컵 추가')">🥤 컵 추가</button>
-
-<hr>
-
-<h3>기타 요청</h3>
-<input id="custom" placeholder="예: 포크 2개 주세요">
+<h3>📝 주문 요청 사항</h3>
+<textarea id="orderNote" placeholder="덜 달게, 얼음 적게"></textarea>
 <br><br>
-<button onclick="sendCustom()">기타 요청 전송</button>
+<button onclick="submitOrder()">주문하기</button>
+
+<!-- =================== -->
+<div class="section">
+<h2>🔔 마시는 중 요청</h2>
+
+<button onclick="sendService('휴지 주세요')">🧻 휴지</button>
+<button onclick="sendService('물 주세요')">💧 물</button>
+<button onclick="sendService('컵 추가요')">🥤 컵</button>
+<button onclick="sendService('직원 호출')">🙋 직원</button>
+
+<br><br>
+<textarea id="serviceText" placeholder="기타 요청 (예: 의자 하나 더 주세요)"></textarea>
+<br>
+<button onclick="sendCustomService()">기타 요청</button>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -61,35 +59,59 @@ firebase.initializeApp({
 });
 
 const db = firebase.database();
+let cart = [];
 
-function sendPreset(msg) {
-  db.ref("requests").push({
-    table: document.getElementById("table").value,
-    message: msg,
-    type: "preset",
-    time: new Date().toLocaleTimeString(),
-    done: false
-  });
-  alert("요청이 전달되었습니다");
+function add(name, price) {
+  const item = cart.find(i => i.name === name);
+  item ? item.qty++ : cart.push({ name, price, qty: 1 });
+  render();
 }
 
-function sendCustom() {
-  const text = document.getElementById("custom").value.trim();
-  if (!text) {
-    alert("요청 내용을 입력해주세요");
-    return;
-  }
+function render() {
+  let sum = 0;
+  const table = document.getElementById("cart");
+  table.innerHTML = "";
+  cart.forEach(i => {
+    sum += i.price * i.qty;
+    table.innerHTML += `<tr><td>${i.name}</td><td>x${i.qty}</td></tr>`;
+  });
+  document.getElementById("total").innerText = sum;
+}
 
-  db.ref("requests").push({
-    table: document.getElementById("table").value,
-    message: text,
-    type: "custom",
+function submitOrder() {
+  if (!cart.length) return alert("메뉴를 선택하세요");
+
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  db.ref("orders").push({
+    table: table.value,
+    items: cart,
+    note: orderNote.value.trim(),
+    total,
     time: new Date().toLocaleTimeString(),
     done: false
   });
 
-  document.getElementById("custom").value = "";
-  alert("요청이 전달되었습니다");
+  cart = [];
+  orderNote.value = "";
+  render();
+  alert("주문 완료");
+}
+
+/* ===== 서비스 요청 ===== */
+function sendService(msg) {
+  db.ref("serviceRequests").push({
+    table: table.value,
+    message: msg,
+    time: new Date().toLocaleTimeString(),
+    done: false
+  });
+}
+
+function sendCustomService() {
+  const text = serviceText.value.trim();
+  if (!text) return alert("내용을 입력하세요");
+  sendService(text);
+  serviceText.value = "";
 }
 </script>
 
