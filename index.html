@@ -6,16 +6,25 @@
 <style>
 body { font-family: sans-serif; text-align: center; padding: 20px; }
 button { padding: 10px 16px; margin: 4px; }
-table { margin: auto; }
+table { margin: auto; border-collapse: collapse; }
+td { padding: 6px 12px; }
 textarea { width: 260px; height: 60px; }
 .section { margin-top: 25px; border-top: 1px solid #ccc; padding-top: 15px; }
+
+/* 테이블 선택 박스 크게 */
+.table-select {
+  font-size: 24px;       /* 글자 크기 */
+  padding: 10px 20px;    /* 상하/좌우 여백 */
+  margin-bottom: 20px;   /* 아래 공간 */
+}
 </style>
 </head>
 <body>
 
-<h2>주문하기</h2>
+<h2>☕ 주문하기</h2>
 
-<select id="table">
+<label for="table"><b>테이블 번호</b></label><br>
+<select id="table" class="table-select">
   <option>1</option><option>2</option><option>3</option>
   <option>4</option><option>5</option>
 </select>
@@ -25,20 +34,17 @@ textarea { width: 260px; height: 60px; }
 <button onclick="add('청포도 에이드',1000)">청포도 에이드</button>
 <button onclick="add('핫 케이크',2000)">핫 케이크</button>
 
-<h3>주문목록</h3>
+<h3>🧺 주문목록</h3>
 <table id="cart"></table>
 <h3>합계: <span id="total">0</span>원</h3>
 
-<h3>주문 요청 사항</h3>
+<h3>📝 주문 요청 사항</h3>
 <textarea id="orderNote" placeholder="덜 달게, 얼음 적게"></textarea>
 <br><br>
 <button onclick="submitOrder()">주문하기</button>
 
-<!-- =================== -->
 <div class="section">
-<h2>마시는 중 요청</h2>
-
-<br><br>
+<h2>🔔 마시는 중 요청</h2>
 <textarea id="serviceText" placeholder="요청 사항"></textarea>
 <br>
 <button onclick="sendCustomService()">요청 사항</button>
@@ -56,23 +62,39 @@ firebase.initializeApp({
 const db = firebase.database();
 let cart = [];
 
+// 장바구니에 항목 추가
 function add(name, price) {
   const item = cart.find(i => i.name === name);
   item ? item.qty++ : cart.push({ name, price, qty: 1 });
   render();
 }
 
+// 장바구니 렌더링
 function render() {
   let sum = 0;
-  const table = document.getElementById("cart");
-  table.innerHTML = "";
-  cart.forEach(i => {
+  const tableEl = document.getElementById("cart");
+  tableEl.innerHTML = "";
+
+  cart.forEach((i, index) => {
     sum += i.price * i.qty;
-    table.innerHTML += `<tr><td>${i.name}</td><td>x${i.qty}</td></tr>`;
+    tableEl.innerHTML += `
+      <tr>
+        <td>${i.name} x${i.qty}</td>
+        <td><button onclick="removeItem(${index})">삭제</button></td>
+      </tr>
+    `;
   });
+
   document.getElementById("total").innerText = sum;
 }
 
+// 장바구니 항목 삭제
+function removeItem(index) {
+  cart.splice(index, 1);
+  render();
+}
+
+// 주문 제출
 function submitOrder() {
   if (!cart.length) return alert("메뉴를 선택하세요");
 
@@ -92,7 +114,7 @@ function submitOrder() {
   alert("주문 완료");
 }
 
-/* ===== 서비스 요청 ===== */
+// 마시는 중 요청 전송
 function sendService(msg) {
   db.ref("serviceRequests").push({
     table: table.value,
@@ -112,6 +134,3 @@ function sendCustomService() {
 
 </body>
 </html>
-
-
-
