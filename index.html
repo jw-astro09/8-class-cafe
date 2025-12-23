@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>카페 요청</title>
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+  button {
+    margin: 6px;
+    padding: 14px 20px;
+    font-size: 16px;
+    width: 160px;
+  }
+  input, select {
+    font-size: 16px;
+    padding: 8px;
+    width: 260px;
+  }
+</style>
+</head>
+<body>
+
+<h2>☕ 직원 호출</h2>
+
+<p>테이블 번호</p>
+<select id="table">
+  <option>1</option><option>2</option><option>3</option>
+  <option>4</option><option>5</option><option>6</option>
+</select>
+
+<hr>
+
+<h3>주문</h3>
+<button onclick="sendPreset('청포도 에이드')"> 청포도 에이드</button>
+<button onclick="sendPreset('복숭아 아이스티')"> 복숭아 아이스티(탄산)</button>
+<button onclick="sendPreset('핫케익')">핫케잌</button>
+
+<h3>빠른 요청</h3>
+<button onclick="sendPreset('물')">💧 물</button>
+<button onclick="sendPreset('냅킨')">🧻 냅킨</button>
+<button onclick="sendPreset('컵 추가')">🥤 컵 추가</button>
+
+<hr>
+
+<h3>기타 요청</h3>
+<input id="custom" placeholder="예: 포크 2개 주세요">
+<br><br>
+<button onclick="sendCustom()">기타 요청 전송</button>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyCjrPv7idDtgkNtaQNQn9RJY4FNDVl_QZ0",
+  databaseURL: "https://cafe-complain-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+
+const db = firebase.database();
+
+function sendPreset(msg) {
+  db.ref("requests").push({
+    table: document.getElementById("table").value,
+    message: msg,
+    type: "preset",
+    time: new Date().toLocaleTimeString(),
+    done: false
+  });
+  alert("요청이 전달되었습니다");
+}
+
+function sendCustom() {
+  const text = document.getElementById("custom").value.trim();
+  if (!text) {
+    alert("요청 내용을 입력해주세요");
+    return;
+  }
+
+  db.ref("requests").push({
+    table: document.getElementById("table").value,
+    message: text,
+    type: "custom",
+    time: new Date().toLocaleTimeString(),
+    done: false
+  });
+
+  document.getElementById("custom").value = "";
+  alert("요청이 전달되었습니다");
+}
+</script>
+
+</body>
+</html>
