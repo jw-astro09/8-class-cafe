@@ -38,15 +38,10 @@ textarea { width: 260px; height: 60px; }
 <div class="section">
 <h2>🔔 마시는 중 요청</h2>
 
-<button onclick="sendService('휴지 주세요')">🧻 휴지</button>
-<button onclick="sendService('물 주세요')">💧 물</button>
-<button onclick="sendService('컵 추가요')">🥤 컵</button>
-<button onclick="sendService('직원 호출')">🙋 직원</button>
-
 <br><br>
-<textarea id="serviceText" placeholder="기타 요청 (예: 의자 하나 더 주세요)"></textarea>
+<textarea id="serviceText" placeholder="요청 사항"></textarea>
 <br>
-<button onclick="sendCustomService()">기타 요청</button>
+<button onclick="sendCustomService()">요청 사항</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -117,3 +112,4 @@ function sendCustomService() {
 
 </body>
 </html>
+
