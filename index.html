@@ -21,15 +21,15 @@ textarea { width: 260px; height: 60px; }
 </select>
 
 <h3>메뉴</h3>
-<button onclick="add('아메리카노',4000)">아메리카노</button>
-<button onclick="add('라떼',4500)">라떼</button>
-<button onclick="add('케이크',5500)">케이크</button>
+<button onclick="add('복숭아 아이스티',1000)">복숭아 아이스티(탄산)</button>
+<button onclick="add('청포도 에이드',1000)">청포도 에이드</button>
+<button onclick="add('핫 케이크',2000)">핫 케이크</button>
 
-<h3>🧺 장바구니</h3>
+<h3>주문목록</h3>
 <table id="cart"></table>
 <h3>합계: <span id="total">0</span>원</h3>
 
-<h3>📝 주문 요청 사항</h3>
+<h3>주문 요청 사항</h3>
 <textarea id="orderNote" placeholder="덜 달게, 얼음 적게"></textarea>
 <br><br>
 <button onclick="submitOrder()">주문하기</button>
@@ -112,4 +112,5 @@ function sendCustomService() {
 
 </body>
 </html>
+
 
