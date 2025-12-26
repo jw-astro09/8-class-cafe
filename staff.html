@@ -7,7 +7,7 @@
 body { font-family: sans-serif; padding: 20px; }
 .box { border-bottom: 1px solid #ccc; margin-bottom: 12px; padding-bottom: 8px; }
 .done { color: gray; text-decoration: line-through; }
-.service { background: #e8f4ff; padding: 8px; border-radius: 6px; margin-bottom: 6px; }
+.service { background: #e8f4ff; padding: 8px; border-radius: 6px; margin: 6px 0; }
 button { margin: 2px; }
 </style>
 </head>
@@ -33,12 +33,12 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
-/* ===================== Web Audio API 알림 ===================== */
+/* ===================== 알림 소리 ===================== */
 let audioCtx;
 
 function enableSound() {
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  playAlert(); // 테스트용
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  playAlert();
   alert("알림이 활성화되었습니다");
 }
 
@@ -49,7 +49,7 @@ function playAlert() {
   const gain = audioCtx.createGain();
 
   osc.type = "sine";
-  osc.frequency.value = 1000; // 🔔 동일한 소리
+  osc.frequency.value = 1000;
   gain.gain.value = 0.18;
 
   osc.connect(gain);
@@ -60,65 +60,73 @@ function playAlert() {
 }
 
 /* ===================== 주문 표시 ===================== */
-db.ref("orders").on("value", snap=>{
+db.ref("orders").on("value", snap => {
   const ordersDiv = document.getElementById("orders");
- ordersDiv.innerHTML += `
-  <div class="box ${d.done?'done':''}">
-    <b>테이블 ${d.table}</b><br>
-    ${d.items.map(i=>`${i.name} x${i.qty}`).join("<br>")}
-    <br><b>합계 ${d.total}원</b><br>
+  ordersDiv.innerHTML = "";
 
-    ${d.note ? `<div class="service">📝 요청: ${d.note}</div>` : ""}
+  snap.forEach(c => {
+    const key = c.key;
+    const d = c.val();
 
-    <br>
-    <button onclick="deleteOrder('${key}')">삭제</button>
-  </div>
-`;
+    ordersDiv.innerHTML += `
+      <div class="box ${d.done ? 'done' : ''}">
+        <b>테이블 ${d.table}</b><br>
+        ${d.items.map(i => `${i.name} x${i.qty}`).join("<br>")}
+        <br><b>합계 ${d.total}원</b>
 
+        ${d.note ? `<div class="service">📝 요청사항: ${d.note}</div>` : ""}
+
+        <button onclick="deleteOrder('${key}')">삭제</button>
+      </div>
+    `;
   });
 });
 
 /* ===================== 서비스 요청 표시 ===================== */
-db.ref("serviceRequests").on("value", snap=>{
-  services.innerHTML="";
-  snap.forEach(c=>{
+db.ref("serviceRequests").on("value", snap => {
+  const servicesDiv = document.getElementById("services");
+  servicesDiv.innerHTML = "";
+
+  snap.forEach(c => {
     const d = c.val();
-    services.innerHTML = `
+
+    servicesDiv.innerHTML = `
       <div class="service">
         <b>테이블 ${d.table}</b> - ${d.message}
         <button onclick="completeService('${c.key}')">완료</button>
       </div>
-    ` + services.innerHTML;
+    ` + servicesDiv.innerHTML;
   });
 });
 
-function completeService(key){
-  if(confirm("이 요청을 완료 처리하고 삭제할까요?")){
+/* ===================== 삭제 / 완료 ===================== */
+function deleteOrder(key) {
+  if (confirm("이 주문을 삭제하시겠습니까?")) {
+    db.ref("orders/" + key).remove();
+  }
+}
+
+function completeService(key) {
+  if (confirm("이 요청을 완료 처리하고 삭제할까요?")) {
     db.ref("serviceRequests/" + key).remove();
   }
 }
 
+/* ===================== 새 주문 / 요청 알림 ===================== */
+let initOrders = true;
+let initService = true;
 
-function deleteOrder(key){
-  if(confirm("이 주문을 삭제하시겠습니까?")){
-    db.ref("orders/"+key).remove();
-  }
-}
-
-/* ===================== 알림음 (새로 들어올 때만) ===================== */
-let initOrders = true, initService = true;
-
-db.ref("orders").on("child_added", ()=>{
-  if(!initOrders) playAlert();
+db.ref("orders").on("child_added", () => {
+  if (!initOrders) playAlert();
 });
-db.ref("orders").once("value", ()=>initOrders=false);
+db.ref("orders").once("value", () => initOrders = false);
 
-db.ref("serviceRequests").on("child_added", ()=>{
-  if(!initService) playAlert();
+db.ref("serviceRequests").on("child_added", () => {
+  if (!initService) playAlert();
 });
-db.ref("serviceRequests").once("value", ()=>initService=false);
-
+db.ref("serviceRequests").once("value", () => initService = false);
 </script>
+
 </body>
 </html>
 
