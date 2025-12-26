@@ -62,18 +62,19 @@ function playAlert() {
 /* ===================== 주문 표시 ===================== */
 db.ref("orders").on("value", snap=>{
   const ordersDiv = document.getElementById("orders");
-  ordersDiv.innerHTML = "";
-  snap.forEach(c=>{
-    const key = c.key;
-    const d = c.val();
-    ordersDiv.innerHTML += `
-      <div class="box ${d.done?'done':''}">
-        <b>테이블 ${d.table}</b><br>
-        ${d.items.map(i=>`${i.name} x${i.qty}`).join("<br>")}
-        <br><b>합계 ${d.total}원</b><br><br>
-        <button onclick="deleteOrder('${key}')">삭제</button>
-      </div>
-    `;
+ ordersDiv.innerHTML += `
+  <div class="box ${d.done?'done':''}">
+    <b>테이블 ${d.table}</b><br>
+    ${d.items.map(i=>`${i.name} x${i.qty}`).join("<br>")}
+    <br><b>합계 ${d.total}원</b><br>
+
+    ${d.note ? `<div class="service">📝 요청: ${d.note}</div>` : ""}
+
+    <br>
+    <button onclick="deleteOrder('${key}')">삭제</button>
+  </div>
+`;
+
   });
 });
 
@@ -120,3 +121,4 @@ db.ref("serviceRequests").once("value", ()=>initService=false);
 </script>
 </body>
 </html>
+
