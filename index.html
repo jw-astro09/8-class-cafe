@@ -10,12 +10,10 @@ table { margin: auto; border-collapse: collapse; }
 td { padding: 6px 12px; }
 textarea { width: 260px; height: 60px; }
 .section { margin-top: 25px; border-top: 1px solid #ccc; padding-top: 15px; }
-
-/* 테이블 선택 박스 크게 */
 .table-select {
-  font-size: 15px;       /* 글자 크기 */
-  padding: 10px 10px;    /* 상하/좌우 여백 */
-  margin-bottom: 15px;   /* 아래 공간 */
+  font-size: 15px;
+  padding: 10px 10px;
+  margin-bottom: 15px;
 }
 </style>
 </head>
@@ -36,7 +34,7 @@ textarea { width: 260px; height: 60px; }
 
 <h3>주문목록</h3>
 <table id="cart"></table>
-<h3>합계: <span id="total">0</span>원</h3>
+<h3>합계: <span id="total">0</span>원 / 최대 3000원</h3>
 
 <h3>주문 요청 사항</h3>
 <textarea id="orderNote" placeholder="덜 달게, 얼음 적게"></textarea>
@@ -60,10 +58,18 @@ firebase.initializeApp({
 });
 
 const db = firebase.database();
+const MAX_TOTAL = 3000;
 let cart = [];
 
-// 장바구니에 항목 추가
+// 메뉴 추가 (3000원 제한)
 function add(name, price) {
+  const currentTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+  if (currentTotal + price > MAX_TOTAL) {
+    alert("총 주문 금액은 3000원을 넘을 수 없습니다.");
+    return;
+  }
+
   const item = cart.find(i => i.name === name);
   item ? item.qty++ : cart.push({ name, price, qty: 1 });
   render();
@@ -88,7 +94,7 @@ function render() {
   document.getElementById("total").innerText = sum;
 }
 
-// 장바구니 항목 삭제
+// 항목 삭제
 function removeItem(index) {
   cart.splice(index, 1);
   render();
@@ -96,14 +102,22 @@ function removeItem(index) {
 
 // 주문 제출
 function submitOrder() {
-  if (!cart.length) return alert("메뉴를 선택하세요");
+  if (!cart.length) {
+    alert("메뉴를 선택하세요");
+    return;
+  }
 
-  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  if (total > MAX_TOTAL) {
+    alert("3000원을 초과한 주문은 불가능합니다.");
+    return;
+  }
+
   db.ref("orders").push({
     table: table.value,
     items: cart,
     note: orderNote.value.trim(),
-    total,
+    total: total,
     time: new Date().toLocaleTimeString(),
     done: false
   });
@@ -114,7 +128,7 @@ function submitOrder() {
   alert("주문 완료");
 }
 
-// 마시는 중 요청 전송
+// 요청사항 전송
 function sendService(msg) {
   db.ref("serviceRequests").push({
     table: table.value,
@@ -126,7 +140,10 @@ function sendService(msg) {
 
 function sendCustomService() {
   const text = serviceText.value.trim();
-  if (!text) return alert("내용을 입력하세요");
+  if (!text) {
+    alert("내용을 입력하세요");
+    return;
+  }
   sendService(text);
   serviceText.value = "";
 }
@@ -134,7 +151,3 @@ function sendCustomService() {
 
 </body>
 </html>
-+
-
-
-
